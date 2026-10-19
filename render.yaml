@@ -10,5 +10,5 @@ services:
       - key: MODEL_DIR
         value: /opt/render/project/src
       - key: ALLOWED_ORIGINS
-        value: https://huemind.vercel.app
+        value: https://huemind.vercel.app,https://huemind-njj3eqsop-krishnakkmohan066-4967s-projects.vercel.app
     healthCheckPath: /health
