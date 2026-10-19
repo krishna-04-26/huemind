@@ -6,13 +6,13 @@
 "use strict";
 
 // ── Config ────────────────────────────────────────────────────────────────────
-// On Vercel: HUEMIND_API_URL is injected by /env-config.js (see vercel.json).
+// On Vercel: falls back to the Render API automatically.
 // Locally: falls back to 127.0.0.1:8000 automatically.
 const API_BASE = (typeof window !== "undefined" && window.HUEMIND_API_URL)
   ? window.HUEMIND_API_URL
   : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:")
     ? "http://127.0.0.1:8000"
-    : "https://huemind-api.onrender.com"; // production fallback
+    : "https://huemind-menj.onrender.com"; // Render backend
 
 // ── Emotion metadata ──────────────────────────────────────────────────────────
 const EMOTIONS = {
