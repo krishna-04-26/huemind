@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: huemind-api
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MODEL_DIR
+        value: /opt/render/project/src
+      - key: ALLOWED_ORIGINS
+        value: https://huemind.vercel.app
+    healthCheckPath: /health

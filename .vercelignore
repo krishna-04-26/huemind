@@ -1,0 +1,14 @@
+# Exclude the ML model files — backend is hosted on Render, not Vercel
+model.safetensors
+training_args.bin
+tokenizer.json
+config.json
+tokenizer_config.json
+
+# Exclude backend Python code
+backend/
+
+# Exclude dev/config files
+README.md
+render.yaml
+.gitattributes

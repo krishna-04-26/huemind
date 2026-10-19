@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HueMind — Every sentence has a shade.</title>
+  <meta name="description" content="HueMind uses fine-tuned DistilBERT to detect emotions in text. Discover the emotional shade of every sentence — sadness, joy, love, anger, fear, or surprise." />
+  <meta property="og:title" content="HueMind — Emotion Detection from Text" />
+  <meta property="og:description" content="Every sentence has a shade. Detect emotions in your text with AI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- CANVAS BACKGROUND -->
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div id="grain-overlay" aria-hidden="true"></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo">
+    <span class="logo-mark">H</span>
+    <span class="logo-text">HueMind</span>
+  </div>
+  <nav class="site-nav">
+    <a href="#detector">Detector</a>
+    <a href="#analytics">Analytics</a>
+    <a href="#about">About</a>
+  </nav>
+</header>
+
+<!-- HERO / DETECTOR -->
+<section class="hero" id="detector">
+  <div class="hero-inner">
+    <div class="hero-badge">AI Emotion Intelligence</div>
+    <h1 class="hero-title">Every sentence<br /><em>has a shade.</em></h1>
+    <p class="hero-sub">
+      Fine-tuned DistilBERT reads the emotional colour of your words —<br />
+      sadness, joy, love, anger, fear, or surprise.
+    </p>
+
+    <!-- Input card -->
+    <div class="random-row">
+      <button id="random-btn" class="random-btn" aria-label="Fill with a random example sentence">
+        <span class="random-icon">↻</span> Random Text
+      </button>
+    </div>
+
+    <div class="detector-card" id="detector-card">
+      <div class="detector-card-inner">
+        <label for="text-input" class="sr-only">Enter text to analyse</label>
+        <textarea
+          id="text-input"
+          placeholder="Type or paste a sentence, paragraph, or anything you feel…"
+          rows="4"
+          maxlength="2000"
+          spellcheck="true"
+          aria-label="Text to analyse"
+        ></textarea>
+        <div class="input-meta">
+          <span class="char-count"><span id="char-num">0</span> / 2000</span>
+          <button id="detect-btn" class="detect-btn" aria-label="Detect emotion">
+            <span class="btn-text">Detect Emotion</span>
+            <span class="btn-icon">&#8594;</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+        <p class="input-error" id="input-error" role="alert" aria-live="assertive"></p>
+      </div>
+    </div>
+
+    <!-- Result card -->
+    <div class="result-card" id="result-card" aria-live="polite">
+    </div>
+  </div>
+</section>
+
+<!-- ANALYTICS -->
+<section class="analytics-section" id="analytics">
+  <div class="section-header">
+    <div class="section-badge">Model Analytics</div>
+    <h2 class="section-title">How HueMind Works</h2>
+    <p class="section-sub">
+      DistilBERT fine-tuned on 16,000 labelled sentences — real metrics, real results.
+    </p>
+  </div>
+
+  <!-- Architecture cards -->
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-icon">&#129302;</div>
+      <h3>DistilBERT Base</h3>
+      <p>66M-parameter distilled BERT transformer. 6 layers, 12 attention heads, 768-dim hidden states. 40% smaller, 60% faster than BERT-Base with 97% of its language understanding.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">&#127919;</div>
+      <h3>Fine-Tuning</h3>
+      <p>Classification head (768 to 6) added above the [CLS] token. Cross-entropy loss, AdamW optimiser, 3 epochs on the DAIR.AI Emotion dataset with linear LR warmup.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">&#128202;</div>
+      <h3>Dataset</h3>
+      <p>DAIR.AI Emotion — English Twitter messages labelled with six emotions. 16,000 training · 2,000 validation · 2,000 test examples.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">&#9889;</div>
+      <h3>Inference</h3>
+      <p>Single forward pass through the model. Softmax applied to raw logits yields calibrated probabilities for all six classes simultaneously.</p>
+    </div>
+  </div>
+
+  <!-- Dataset distribution + Training progress -->
+  <div class="chart-row">
+    <div class="chart-panel wide">
+      <h3 class="chart-title">Training Data Distribution</h3>
+      <p class="chart-desc">Class balance in the 16,000-example training split. Sadness and joy dominate; surprise is the minority class — explaining its lower F1.</p>
+      <div class="chart-wrap">
+        <canvas id="dist-chart"></canvas>
+      </div>
+    </div>
+    <div class="chart-panel">
+      <h3 class="chart-title">Training Progress</h3>
+      <p class="chart-desc">Validation accuracy and Macro-F1 across three epochs of fine-tuning.</p>
+      <div class="chart-wrap">
+        <canvas id="training-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test metrics -->
+  <div class="metrics-row">
+    <div class="metric-card">
+      <div class="metric-value">92.70%</div>
+      <div class="metric-label">Test Accuracy</div>
+      <div class="metric-desc">On 2,000 held-out examples</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">87.76%</div>
+      <div class="metric-label">Macro F1-Score</div>
+      <div class="metric-desc">Unweighted average across 6 classes</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">2,000</div>
+      <div class="metric-label">Test Examples</div>
+      <div class="metric-desc">Never seen during training</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">3</div>
+      <div class="metric-label">Epochs</div>
+      <div class="metric-desc">Training convergence</div>
+    </div>
+  </div>
+
+  <!-- Confusion matrix + Per-class F1 -->
+  <div class="chart-row">
+    <div class="chart-panel">
+      <h3 class="chart-title">Confusion Matrix — Test Set</h3>
+      <p class="chart-desc">Each cell shows predicted vs actual counts. Brighter = more predictions. Diagonal = correct classifications.</p>
+      <div class="chart-wrap confusion-wrap">
+        <canvas id="confusion-chart"></canvas>
+      </div>
+    </div>
+    <div class="chart-panel">
+      <h3 class="chart-title">Per-Class F1 Score</h3>
+      <p class="chart-desc">Surprise underperforms due to limited training examples and overlap with joy. Other classes exceed 88% F1.</p>
+      <div class="chart-wrap">
+        <canvas id="f1-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Precision / Recall -->
+  <div class="chart-row">
+    <div class="chart-panel wide">
+      <h3 class="chart-title">Precision &amp; Recall by Emotion</h3>
+      <p class="chart-desc">Precision: of all sentences the model labelled as emotion X, how many truly were X. Recall: of all truly-X sentences, how many did the model catch.</p>
+      <div class="chart-wrap">
+        <canvas id="pr-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-inner">
+    <div class="about-text">
+      <div class="section-badge">About</div>
+      <h2 class="section-title">Built on real science.</h2>
+      <p>
+        HueMind is a demonstration of transfer learning applied to affective computing.
+        DistilBERT was originally trained on Books Corpus and Wikipedia; fine-tuning on
+        labelled emotion data teaches it to map subtle linguistic patterns — word choice,
+        punctuation, sentence rhythm — to emotional states.
+      </p>
+      <p>
+        The model runs on CPU-compatible PyTorch, served through a FastAPI backend.
+        Predictions are made in a single forward pass, with no data stored or logged
+        beyond the session.
+      </p>
+    </div>
+    <div class="about-pills">
+      <div class="pill sadness">&#128532; Sadness</div>
+      <div class="pill joy">&#128515; Joy</div>
+      <div class="pill love">&#10084; Love</div>
+      <div class="pill anger">&#128544; Anger</div>
+      <div class="pill fear">&#128561; Fear</div>
+      <div class="pill surprise">&#129327; Surprise</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="logo">
+      <span class="logo-mark">H</span>
+      <span class="logo-text">HueMind</span>
+    </div>
+    <p class="footer-tagline">Every sentence has a shade.</p>
+    <p class="footer-note">DistilBERT &middot; DAIR.AI Emotion Dataset &middot; FastAPI &middot; Chart.js</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
